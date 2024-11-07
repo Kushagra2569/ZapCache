@@ -2,9 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"net"
-	"os"
 )
 
 func main() {
@@ -31,19 +29,15 @@ func server() {
 
 	//Main loop for server
 	for {
-		buf := make([]byte, 1024)
-
-		//read messages from client
-		_, err := conn.Read(buf)
+		resp := NewResp(conn)
+		val, err := resp.Read()
 		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			fmt.Println("Error reading from the client: ", err.Error())
-			os.Exit(1)
+			fmt.Println(err)
+			return
 		}
+		_ = val
 
-		//ignore request and send back OK
-		conn.Write([]byte("+OK\r\n"))
+		writer := NewWriter(conn)
+		writer.Write(Value{typ: TYP_STRING, str: "OK"})
 	}
 }
