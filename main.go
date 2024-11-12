@@ -25,6 +25,18 @@ func server() {
 		fmt.Println(err)
 		return
 	}
+	defer aof.Close()
+
+	aof.Read(func(val Value) {
+		command := strings.ToUpper(val.array[0].bulk)
+		args := val.array[1:]
+
+		handler, ok := Handlers[command]
+		if !ok {
+			fmt.Println("Invalid Command: ", command)
+		}
+		handler(args)
+	})
 
 	//Listen for connections
 	conn, err := listener.Accept()
