@@ -19,6 +19,13 @@ func server() {
 		return
 	}
 
+	//Initialise NewAof for data persistence
+	aof, err := NewAof("database.aof")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	//Listen for connections
 	conn, err := listener.Accept()
 	if err != nil {
@@ -56,6 +63,10 @@ func server() {
 			fmt.Println("Invalid Command")
 			writer.Write(Value{typ: TYP_STRING, str: ""})
 			continue
+		}
+
+		if command == "SET" || command == "HSET" {
+			aof.Write(val)
 		}
 
 		result := handler(args)
