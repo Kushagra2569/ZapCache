@@ -3,6 +3,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"os"
 	"sync"
@@ -66,16 +67,18 @@ func (aof *Aof) Read(callback func(value Value)) error {
 
 	resp := NewResp(aof.file)
 
-	for true {
+	for {
 		val, err := resp.Read()
+		fmt.Println(val)
 		if err == nil {
 			callback(val)
+		} else {
+			return err
 		}
 		if err == io.EOF {
 			break
 		}
 
-		return err
 	}
 
 	return nil
